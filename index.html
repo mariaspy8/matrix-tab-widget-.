@@ -1,65 +1,92 @@
 <!DOCTYPE html>
-<html lang="ru">
+<html lang="es">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Tabulador #ruflood</title>
+    <title>Visualizador y Tabulador #ruflood</title>
     <style>
-        body { background: #15191e; color: #f3f4f5; font-family: sans-serif; margin: 0; padding: 15px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
-        #header { font-size: 0.9em; color: #0dbd8b; margin-bottom: 10px; border-bottom: 1px solid #394352; padding-bottom: 5px; font-weight: bold; }
-        #display { flex-grow: 1; background: #181d23; border: 1px solid #2e3641; padding: 15px; overflow-y: auto; margin-bottom: 15px; border-radius: 8px; font-size: 0.95em; }
-        input { width: 100%; background: #21262c; border: 1px solid #394352; color: #ffffff; padding: 12px; border-radius: 8px; outline: none; }
+        body { background: #15191e; color: #f3f4f5; font-family: sans-serif; margin: 0; padding: 10px; display: flex; flex-direction: column; height: 100vh; box-sizing: border-box; }
+        #tabs { display: flex; gap: 5px; margin-bottom: 10px; }
+        .tab-btn { background: #21262c; border: 1px solid #394352; color: #a9b2bc; padding: 5px 10px; cursor: pointer; border-radius: 4px; font-size: 0.8em; }
+        .tab-btn.active { background: #0dbd8b; color: white; border-color: #0dbd8b; }
+        
+        #display, #code-view { flex-grow: 1; background: #181d23; border: 1px solid #2e3641; padding: 15px; overflow-y: auto; border-radius: 8px; font-size: 0.9em; }
+        #code-view { display: none; white-space: pre; font-family: monospace; color: #e6db74; background: #000; }
+        
+        .input-area { margin-top: 10px; }
+        input { width: 100%; background: #21262c; border: 1px solid #394352; color: #ffffff; padding: 10px; border-radius: 8px; outline: none; box-sizing: border-box; }
         input:focus { border-color: #0dbd8b; }
-        .user-msg { color: #0dbd8b; font-weight: bold; }
-        .system-msg { color: #a9b2bc; font-style: italic; font-size: 0.85em; }
     </style>
 </head>
 <body>
 
-    <div id="header">Matrix Widget: #ruflood:unredacted.org</div>
-    
+    <div id="tabs">
+        <button class="tab-btn active" onclick="showTab('chat')">TABULADOR</button>
+        <button class="tab-btn" onclick="showTab('code')">VER CÓDIGO (GITHUB)</button>
+    </div>
+
     <div id="display">
-        <div class="system-msg">Подключено к #ruflood. Escribe @ y pulsa TAB.</div>
-    </div>
-    
-    <div style="position: relative;">
-        <input type="text" id="chatInput" placeholder="Escribe @usuario y pulsa Tab..." autocomplete="off">
+        <div style="color:#0dbd8b">● Sistema de Tabulación Activo</div>
+        <div style="font-size:0.8em; color:#61708b">Sala: #ruflood:unredacted.org</div>
     </div>
 
-    <script src="https://unpkg.com/matrix-widget-api@0.1.0/dist/api.js"></script>
+    <div id="code-view">Cargando código del repositorio...</div>
+
+    <div class="input-area" id="input-container">
+        <input type="text" id="chatInput" placeholder="Escribe @ y pulsa Tab..." autocomplete="off">
+    </div>
+
     <script>
-        const widgetApi = new matrixWidgetApi.WidgetApi();
+        // Función para cambiar de pestaña
+        function showTab(tab) {
+            const chatTab = document.getElementById('display');
+            const codeTab = document.getElementById('code-view');
+            const inputContainer = document.getElementById('input-container');
+            const btns = document.querySelectorAll('.tab-btn');
+
+            if(tab === 'chat') {
+                chatTab.style.display = 'block';
+                inputContainer.style.display = 'block';
+                codeTab.style.display = 'none';
+                btns[0].classList.add('active');
+                btns[1].classList.remove('active');
+            } else {
+                chatTab.style.display = 'none';
+                inputContainer.style.display = 'none';
+                codeTab.style.display = 'block';
+                btns[1].classList.add('active');
+                btns[0].classList.remove('active');
+                fetchCode();
+            }
+        }
+
+        // Función para obtener el código de tu GitHub
+        async function fetchCode() {
+            const url = 'https://raw.githubusercontent.com/mariaspy8/matrix-tab-widget-./main/index.html';
+            try {
+                const response = await fetch(url);
+                const text = await response.text();
+                document.getElementById('code-view').textContent = text;
+            } catch (e) {
+                document.getElementById('code-view').textContent = "Error al cargar el código.";
+            }
+        }
+
+        // Lógica de Tabulación
         const chatInput = document.getElementById('chatInput');
-        const display = document.getElementById('display');
-
-        const usuariosRu = [
-            "@admin:unredacted.org", 
-            "@mariaspy8:unredacted.org",
-            "@ivan:unredacted.org", 
-            "@sergei:unredacted.org", 
-            "@unredacted_bot:unredacted.org"
-        ];
-
-        widgetApi.requestCapabilities(['org.matrix.msc2762.receive.event', 'm.room.message']);
-        widgetApi.start();
+        const usuarios = ["@admin:unredacted.org", "@mariaspy8:unredacted.org", "@ivan:unredacted.org"];
 
         chatInput.addEventListener('keydown', (e) => {
             if (e.key === 'Tab') {
-                e.preventDefault(); 
+                e.preventDefault();
                 const words = chatInput.value.split(" ");
                 const lastWord = words[words.length - 1];
                 if (lastWord.startsWith('@')) {
-                    const match = usuariosRu.find(u => u.toLowerCase().startsWith(lastWord.toLowerCase()));
+                    const match = usuarios.find(u => u.toLowerCase().startsWith(lastWord.toLowerCase()));
                     if (match) {
                         words[words.length - 1] = match;
                         chatInput.value = words.join(" ") + " ";
                     }
                 }
-            }
-            if (e.key === 'Enter' && chatInput.value.trim() !== "") {
-                display.innerHTML += `<div><span class="user-msg">Вы:</span> ${chatInput.value}</div>`;
-                chatInput.value = "";
-                display.scrollTop = display.scrollHeight;
             }
         });
     </script>
