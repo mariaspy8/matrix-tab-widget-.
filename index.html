@@ -2,79 +2,115 @@
 <html lang="es">
 <head>
     <meta charset="UTF-8">
-    <title>Codelab View - #ruflood</title>
+    <title>Codelab: Matrix Tab Widget</title>
     <style>
-        :root { --primary: #0dbd8b; --bg: #15191e; --panel: #181d23; --text: #f3f4f5; }
-        body { background: var(--bg); color: var(--text); font-family: sans-serif; margin: 0; display: flex; height: 100vh; overflow: hidden; }
-        #sidebar { width: 200px; background: var(--panel); border-right: 1px solid #2e3641; display: flex; flex-direction: column; padding: 15px; flex-shrink: 0; }
-        .step { padding: 10px; border-radius: 5px; cursor: pointer; font-size: 0.85em; margin-bottom: 5px; color: #a9b2bc; }
-        .step.active { background: rgba(13, 189, 139, 0.1); color: var(--primary); font-weight: bold; border-left: 3px solid var(--primary); }
-        #main { flex-grow: 1; display: flex; flex-direction: column; padding: 20px; overflow-y: auto; position: relative; }
-        .content-section { display: none; padding-bottom: 80px; }
-        .content-section.active { display: block; }
-        pre { background: #000; padding: 15px; border-radius: 8px; overflow-x: auto; color: #e6db74; font-family: monospace; font-size: 0.85em; border: 1px solid #394352; white-space: pre-wrap; }
-        #footer { position: fixed; bottom: 0; right: 0; width: calc(100% - 230px); background: var(--bg); padding: 15px; border-top: 1px solid #2e3641; box-sizing: border-box; }
-        input { width: 100%; background: #21262c; border: 1px solid #394352; color: #fff; padding: 12px; border-radius: 8px; outline: none; }
-        input:focus { border-color: var(--primary); }
+        :root {
+            --google-blue: #4285f4;
+            --google-green: #0f9d58;
+            --bg-gray: #f8f9fa;
+            --header-height: 64px;
+            --sidebar-width: 260px;
+        }
+        body { font-family: 'Roboto', Arial, sans-serif; margin: 0; padding: 0; display: flex; flex-direction: column; height: 100vh; color: #3c4043; background: #fff; overflow: hidden; }
+
+        /* --- ENCABEZADO SUPERIOR --- */
+        #top-header {
+            height: var(--header-height);
+            background: #fff;
+            border-bottom: 1px solid #e0e0e0;
+            display: flex;
+            align-items: center;
+            padding: 0 24px;
+            justify-content: space-between;
+            z-index: 100;
+        }
+        .header-left { display: flex; align-items: center; gap: 15px; }
+        .header-logo { width: 24px; height: 24px; background: var(--google-blue); border-radius: 4px; }
+        .header-title { font-size: 18px; color: #5f6368; font-weight: 400; }
+        .done-btn { background: var(--google-blue); color: white; border: none; padding: 8px 24px; border-radius: 4px; cursor: pointer; font-weight: 500; text-decoration: none; }
+        .done-btn:hover { background: #3367d6; box-shadow: 0 1px 3px rgba(60,64,67,0.3); }
+
+        /* Contenedor Principal (Sidebar + Contenido) */
+        #app-container { display: flex; flex-grow: 1; overflow: hidden; }
+
+        #sidebar { width: var(--sidebar-width); border-right: 1px solid #e0e0e0; background: #fff; overflow-y: auto; }
+        .step-item { padding: 15px 24px; cursor: pointer; border-left: 4px solid transparent; font-size: 14px; color: #5f6368; }
+        .step-item.active { background: #e8f0fe; border-left: 4px solid var(--google-blue); color: var(--google-blue); font-weight: 500; }
+        
+        #content-wrapper { flex-grow: 1; overflow-y: auto; background: #fff; }
+        .content-body { padding: 40px 60px; max-width: 800px; margin: 0 auto; line-height: 1.6; }
+        
+        .page { display: none; }
+        .page.active { display: block; }
+
+        pre { background: #202124; color: #f1f3f4; padding: 20px; border-radius: 8px; overflow-x: auto; font-family: 'Roboto Mono', monospace; font-size: 13px; }
+        .test-console { background: #1a1d21; padding: 25px; border-radius: 8px; color: white; margin-top: 30px; box-shadow: 0 4px 6px rgba(0,0,0,0.3); }
+        input { width: 100%; padding: 12px; background: #21262c; border: 1px solid #3c4043; color: white; border-radius: 4px; outline: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 
-    <div id="sidebar">
-        <h3 style="color: var(--primary); font-size: 1em; margin-top: 0;">CODELAB</h3>
-        <div class="step active" onclick="goStep(1)">1. Introducción</div>
-        <div class="step" onclick="goStep(2)">2. Ver Código Fuente</div>
-        <div class="step" onclick="goStep(3)">3. Usuarios Matrix</div>
-    </div>
-
-    <div id="main">
-        <div id="step1" class="content-section active">
-            <h1>Bienvenido a #ruflood</h1>
-            <p>Este es un visualizador interactivo para la sala <b>#ruflood:unredacted.org</b>.</p>
-            <p>Usa el menú lateral para explorar las funciones del widget.</p>
+    <header id="top-header">
+        <div class="header-left">
+            <div class="header-logo"></div>
+            <div class="header-title">Matrix Widget Codelab: <span style="font-weight: 500; color: #202124;">#ruflood</span></div>
         </div>
+        <button class="done-btn" onclick="alert('¡Codelab completado!')">HECHO</button>
+    </header>
 
-        <div id="step2" class="content-section">
-            <h1>Código Fuente</h1>
-            <p>Código directo desde GitHub:</p>
-            <pre id="code-box">Cargando código...</pre>
-        </div>
+    <div id="app-container">
+        <nav id="sidebar">
+            <div class="step-item active" onclick="showPage(1)">1. Introducción</div>
+            <div class="step-item" onclick="showPage(2)">2. Estructura del Widget</div>
+            <div class="step-item" onclick="showPage(3)">3. El Tabulador Real</div>
+            <div class="step-item" onclick="showPage(4)">4. Probar en #ruflood</div>
+        </nav>
 
-        <div id="step3" class="content-section">
-            <h1>Base de Datos</h1>
-            <p>Usuarios configurados para autocompletar:</p>
-            <ul id="user-list"></ul>
-        </div>
-    </div>
+        <main id="content-wrapper">
+            <div class="content-body">
+                <div id="page1" class="page active">
+                    <h1>Introducción</h1>
+                    <p>Este widget está diseñado para mejorar la experiencia de usuario en la sala <b>#ruflood:unredacted.org</b> proporcionando una herramienta de autocompletado rápida y visualización de código.</p>
+                </div>
 
-    <div id="footer">
-        <input type="text" id="chatInput" placeholder="Prueba el tabulador: escribe @ y pulsa TAB..." autocomplete="off">
+                <div id="page2" class="page">
+                    <h1>Código del Archivo</h1>
+                    <pre id="code-display">Obteniendo index.html...</pre>
+                </div>
+
+                <div id="page3" class="page">
+                    <h1>Probador de Tabulador</h1>
+                    <div class="test-console">
+                        <h4 style="margin:0; color:var(--google-green)">Entorno de pruebas</h4>
+                        <input type="text" id="chatInput" placeholder="Escribe @m y pulsa TAB..." autocomplete="off">
+                    </div>
+                </div>
+
+                <div id="page4" class="page">
+                    <h1>¡Listo para despegar!</h1>
+                    <p>Copia el link de tu GitHub Pages y añádelo con el comando de Matrix.</p>
+                </div>
+            </div>
+        </main>
     </div>
 
     <script>
-        const usuarios = ["@admin:unredacted.org", "@mariaspy8:unredacted.org", "@ivan:unredacted.org", "@sergei:unredacted.org"];
+        const usuarios = ["@mariaspy8:unredacted.org", "@admin:unredacted.org", "@ivan:unredacted.org"];
         
-        function goStep(n) {
-            document.querySelectorAll('.content-section').forEach(s => s.classList.remove('active'));
-            document.querySelectorAll('.step').forEach(s => s.classList.remove('active'));
-            document.getElementById('step' + n).classList.add('active');
-            document.querySelectorAll('.step')[n-1].classList.add('active');
+        function showPage(n) {
+            document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+            document.querySelectorAll('.step-item').forEach(s => s.classList.remove('active'));
+            document.getElementById('page' + n).classList.add('active');
+            document.querySelectorAll('.step-item')[n-1].classList.add('active');
             if(n === 2) fetchCode();
-            if(n === 3) renderUsers();
-        }
-
-        function renderUsers() {
-            const list = document.getElementById('user-list');
-            list.innerHTML = usuarios.map(u => `<li>${u}</li>`).join('');
         }
 
         async function fetchCode() {
-            const codeBox = document.getElementById('code-box');
+            const display = document.getElementById('code-display');
             try {
-                const r = await fetch('[https://raw.githubusercontent.com/mariaspy8/matrix-tab-widget-./main/index.html](https://raw.githubusercontent.com/mariaspy8/matrix-tab-widget-./main/index.html)');
-                const t = await r.text();
-                codeBox.textContent = t;
-            } catch(e) { codeBox.textContent = "Error cargando el código desde GitHub."; }
+                const res = await fetch('https://raw.githubusercontent.com/mariaspy8/matrix-tab-widget-./main/index.html');
+                display.textContent = await res.text();
+            } catch(e) { display.textContent = "Error al cargar código."; }
         }
 
         document.getElementById('chatInput').addEventListener('keydown', (e) => {
